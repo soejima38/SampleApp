@@ -29,6 +29,26 @@ async function download() {
   await invoke("download", {url: "https://example.com/file.zip"});
 }
 
+
+const startMsg = ref("");   // pint受け取りを開始した際のメッセージを格納する変数
+const pintReceived = ref("test2");  // pingを受け取った時のメッセージを格納する変数
+async function startWaitPing() {
+  // pingの受け取りを開始するメソッド
+  await invoke("start_wait_ping");
+}
+
+listen('listen-started', (event) => {
+  // pingイベントを受け取ったときの処理
+  // event.payloadには受け取ったメッセージが入る
+  startMsg.value += `\n${event.payload}`;
+});
+
+listen('ping-received', (event) => {
+  // pingイベントを受け取ったときの処理
+  // event.payloadには受け取ったメッセージが入る
+  pintReceived.value = `${event.payload}`;
+});
+
 </script>
 
 <template>
@@ -59,6 +79,13 @@ async function download() {
       <button type="submit">Download</button>       <!-- download関数を呼び出すボタン -->
     </form>
     <p>{{ eventValue }}</p>                         <!-- 受け取ったイベントの内容を表示するための変数を表示 -->
+
+    <!-- pingテスト-->
+     <form @submit.prevent="startWaitPing">
+      <button type="submit">Ping Start</button>       <!-- download関数を呼び出すボタン -->
+    </form>
+    <pre>{{ startMsg }}</pre>                         <!-- ping受付開始時のメッセージを表示 -->
+    <p>{{ pintReceived }}</p>                         <!-- ping受け取り時のメッセージを表示 -->
   </main>
 </template>
 
