@@ -1,3 +1,5 @@
+pub mod test;
+
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 #[tauri::command]
 fn greet(name: &str) -> String {
@@ -8,7 +10,10 @@ fn greet(name: &str) -> String {
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![greet])
+        .invoke_handler(tauri::generate_handler![
+            greet,          // フロントエンドから呼び出すコマンドはカンマ区切りで追加可能
+            test::download  // 別ファイルからコマンドを呼ぶときは「pub mod ファイル名;」を書いたうえで「ファイル名::関数名」を指定
+            ]) 
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

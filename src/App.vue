@@ -9,6 +9,26 @@ async function greet() {
   // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
   greetMsg.value = await invoke("greet", { name: name.value });
 }
+
+// イベントを受け取る際に必要なインポート
+import { listen } from '@tauri-apps/api/event';
+
+// ダウンロードの進捗を表示するための変数
+const eventValue = ref("");
+
+// バックエンドからの「download-started」イベントを受け取る
+// 受け取ったときは、a.valueに「downloading from [URL]」と表示する
+listen('download-started', (event) => {
+  eventValue.value = `downloading from ${event.payload}`
+});
+
+  // downsloadコマンドを呼び出す
+  // 呼び出すときは第1引数にコマンド名を指定し、
+  // 第2引数にオブジェクトを指定する
+async function download() {
+  await invoke("download", {url: "https://example.com/file.zip"});
+}
+
 </script>
 
 <template>
@@ -33,6 +53,12 @@ async function greet() {
       <button type="submit">Greet</button>
     </form>
     <p>{{ greetMsg }}</p>
+  
+    <!-- バックエンドからのイベントを取得し、表示するテスト -->
+    <form class="test" @submit.prevent="download">  <!-- classはただの名前付け。ラベル。省略できる-->
+      <button type="submit">Download</button>       <!-- download関数を呼び出すボタン -->
+    </form>
+    <p>{{ eventValue }}</p>                         <!-- 受け取ったイベントの内容を表示するための変数を表示 -->
   </main>
 </template>
 
