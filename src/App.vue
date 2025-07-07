@@ -49,12 +49,44 @@ listen('ping-received', (event) => {
   pintReceived.value = `${event.payload}`;
 });
 
+
+// チャット機能のための変数とメソッド
+const chatLog = ref("");
+
+listen('chat-message', (event) => {
+  // チャットメッセージを受け取ったときの処理
+  // event.payloadには受け取ったメッセージが入る
+  chatLog.value += `${event.payload}\n`;
+});
+
+const message = ref(""); // チャットメッセージを格納する変数
+
+async function sendMessage() {
+  // チャットメッセージを送信するメソッド
+  // ここでは、バックエンドのチャット機能にメッセージを送信する
+  if (!message.value.trim()) {
+    return; // 空のメッセージは送信しない
+  }
+  const msg = message.value.trim();
+  message.value = "てｓｔ"; // メッセージを送信した後は入力欄
+  
+  await invoke("send_chat_message", { message: msg }); // バックエンドのsend_chat_messageコマンドを呼び出す
+  chatLog.value += `You: ${msg}\n`; // ログに送信したメッセージを追加
+}
+
 </script>
 
 <template>
   <main class="container">
-    <h1>サンプル画面</h1>
-
+    <div class="chat-container">
+        <!-- ログ表示部（複数行テキストボックス/readonly） -->
+        <textarea class="chat-log" readonly>{{ chatLog }}</textarea>
+        <!-- 入力エリア -->
+        <form class="chat-input-area" @submit.prevent="sendMessage">
+          <input type="text" v-model="message" placeholder="メッセージを入力...">
+          <button type="submit">送信</button>
+        </form>
+      </div>
     <form class="row" @submit.prevent="greet">
       <input id="greet-input" v-model="name" placeholder="Enter a name..." />
       <button type="submit">Greet</button>
@@ -198,3 +230,61 @@ button {
 }
 
 </style>
+
+<!-- チャット部のスタイル -->
+<style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    .chat-container {
+      width: 400px;
+      margin: 40px auto;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px #0001;
+      display: flex;
+      flex-direction: column;
+      padding: 18px 18px 0 18px;
+    }
+    .chat-log {
+      width: 95%;
+      height: 250px;
+      resize: none;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+      color: #222;
+      background: #f9f9f9;
+      margin-bottom: 14px;
+      overflow-y: auto;
+    }
+    .chat-input-area {
+      display: flex;
+      padding-bottom: 18px;
+      gap: 8px;
+    }
+    .chat-input-area input {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1px solid #bbb;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+    .chat-input-area button {
+      padding: 8px 16px;
+      background: #24c8db;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .chat-input-area button:hover {
+      background: #189aa8;
+    }
+  </style>

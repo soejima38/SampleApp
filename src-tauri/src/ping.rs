@@ -4,7 +4,7 @@
 use std::{error::Error,  time::Duration};
 
 use futures::prelude::*;
-use libp2p::{noise, ping, swarm::SwarmEvent, tcp, yamux, Multiaddr};
+use libp2p::{noise, ping, swarm::SwarmEvent, tcp, yamux};
 use tracing_subscriber::EnvFilter;
 use tauri::{AppHandle, Emitter};
 
